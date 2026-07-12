@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swarupa - Ayurveda PG Portal</title>
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -278,10 +280,12 @@
             width: 100%;
             position: relative;
             margin-bottom: 15px;
+            display: flex; 
+            gap: 10px;
         }
 
         .search-input {
-            width: 100%;
+            flex-grow: 1;
             padding: 14px 16px;
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
@@ -388,7 +392,7 @@
 
         .nav-buttons {
             display: flex;
-            gap: 20px;
+            gap: 15px; /* Tighter gap to fit 3 buttons elegantly */
             width: 100%;
             justify-content: center;
         }
@@ -609,7 +613,7 @@
         }
 
         /* =========================================
-           NEW CSS: Mock Grid & Favorites
+           CSS: Mock Grid & Favorites
            ========================================= */
         .mock-grid-layout {
             display: flex;
@@ -666,11 +670,44 @@
             border-color: var(--accent-gold);
             color: var(--accent-gold);
         }
+
+        /* =========================================
+           NEW CSS: Topic Index Modal
+           ========================================= */
+        .index-subject-header {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin: 20px 0 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+
+        .index-topic-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .index-topic-item:hover {
+            background-color: var(--accent-green-light);
+            color: var(--accent-green);
+        }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        <!-- Persistent Header -->
         <header>
             <div class="logo">Swarupa</div>
             <div class="user-status" id="user-status-area">
@@ -678,6 +715,7 @@
             </div>
         </header>
 
+        <!-- SCREEN 1: LOGIN PORTAL (Gateway) -->
         <div id="screen-login" class="screen active">
             <div class="gateway-card">
                 <h1>Ayurveda PG Portal</h1>
@@ -699,6 +737,7 @@
             </div>
         </div>
 
+        <!-- SCREEN 2: MINIMAL DASHBOARD -->
         <div id="screen-dashboard" class="screen">
             <div class="welcome-section">
                 <h2>Choose Your Path</h2>
@@ -732,6 +771,7 @@
                     </div>
                     <span class="dash-arrow">→</span>
                 </div>
+                <!-- Favorites Dashboard Option -->
                 <div class="dash-card" onclick="openOptionD()">
                     <div class="dash-card-content">
                         <h3>D. My Favorites</h3>
@@ -742,11 +782,14 @@
             </div>
         </div>
 
+        <!-- SCREEN 3: FLASHCARD INDEX -->
         <div id="screen-flashcard" class="screen">
             <div class="back-nav" onclick="showScreen('screen-dashboard')">← Back to Dashboard</div>
             
+            <!-- NEW: Search Container with Browse Index Button -->
             <div class="search-container">
                 <input type="text" id="topic-search-input" class="search-input" placeholder="🔍 Search topics..." oninput="handleSearch(event)">
+                <button class="btn" onclick="openTopicIndex()" style="width: auto; padding: 0 20px;">📑 Browse Index</button>
                 <div id="search-results-box" class="search-results"></div>
             </div>
 
@@ -756,13 +799,16 @@
                     <div id="card-title" class="flashcard-title">Topic Title</div>
                     <div class="click-hint">Click Card to Read Study Notes</div>
                 </div>
+                <!-- NEW: Nav buttons including Shuffle -->
                 <div class="nav-buttons">
-                    <button class="btn-secondary" onclick="loadPreviousTopic()">← Previous Topic</button>
-                    <button class="btn-secondary" onclick="loadNextTopic()">Next Topic →</button>
+                    <button class="btn-secondary" onclick="loadPreviousTopic()">← Previous</button>
+                    <button class="btn-secondary" onclick="loadRandomTopic()" title="Random Topic">🔀 Shuffle</button>
+                    <button class="btn-secondary" onclick="loadNextTopic()">Next →</button>
                 </div>
             </div>
         </div>
 
+        <!-- SCREEN 4: LITERATURE READER -->
         <div id="screen-reader" class="screen">
             <div class="back-nav" onclick="showScreen('screen-flashcard')">← Back to Flashcards</div>
             <div class="reader-container">
@@ -776,7 +822,8 @@
                     </div>
                 </div>
                 <div id="reader-content" class="reader-content">
-                    </div>
+                    <!-- Study material will load dynamically here -->
+                </div>
                 <div class="practice-callout">
                     <p>Have you completed studying this concept?</p>
                     <button class="btn" id="start-topic-quiz-btn">Test Your Knowledge</button>
@@ -784,6 +831,7 @@
             </div>
         </div>
 
+        <!-- SCREEN 5: MCQ EXAM ENGINE -->
         <div id="screen-mcq" class="screen">
             <div class="back-nav" id="quiz-back-button">← Exit Practice</div>
             
@@ -792,6 +840,7 @@
                 <span id="timer-display">120:00</span>
             </div>
 
+            <!-- MOCK SUMMARY GRID -->
             <div id="mock-summary-container" class="mock-generator-container" style="display: none; max-width: 100%; margin: 0 0 20px 0; padding: 20px;">
                 <h3>Exam Summary</h3>
                 <div id="mock-grid" class="mock-grid-layout"></div>
@@ -805,7 +854,8 @@
                 
                 <div id="quiz-question" class="question-text">Question contents...</div>
                 <div id="quiz-options" class="options-list">
-                    </div>
+                    <!-- Dynamic option items -->
+                </div>
                 <div id="explanation-container" class="explanation-box" style="display: none;">
                     <strong>Explanation:</strong> <span id="explanation-text">Detail...</span>
                 </div>
@@ -817,6 +867,7 @@
             </div>
         </div>
 
+        <!-- SCREEN 6: DYNAMIC MOCK PAPERS (Option C) -->
         <div id="screen-mocks" class="screen">
             <div class="back-nav" onclick="showScreen('screen-dashboard')">← Back to Dashboard</div>
             <div class="welcome-section">
@@ -831,6 +882,7 @@
             </div>
         </div>
 
+        <!-- SCREEN 7: FAVORITES DASHBOARD -->
         <div id="screen-favorites" class="screen">
             <div class="back-nav" onclick="showScreen('screen-dashboard')">← Back to Dashboard</div>
             <div class="welcome-section">
@@ -840,15 +892,18 @@
             
             <h3 style="margin-top: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Saved Topics</h3>
             <div id="fav-topics-list" class="dashboard-grid" style="margin-bottom: 40px; margin-top: 20px;">
-                </div>
+                <!-- Dynamic favorite topics -->
+            </div>
 
             <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Saved Questions</h3>
             <div id="fav-questions-list" class="dashboard-grid" style="margin-top: 20px;">
-                </div>
+                <!-- Dynamic favorite questions -->
+            </div>
         </div>
 
     </div>
 
+    <!-- PRE-EXAM MODAL -->
     <div id="instruction-modal" class="modal">
         <div class="modal-content">
             <h3>Mock Test Instructions</h3>
@@ -866,6 +921,22 @@
         </div>
     </div>
 
+    <!-- NEW: TOPIC INDEX MODAL -->
+    <div id="topic-index-modal" class="modal">
+        <div class="modal-content" style="max-height: 85vh; display: flex; flex-direction: column; width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">Syllabus Index</h3>
+                <button class="btn-text" onclick="closeTopicIndexModal()" style="font-size: 20px; font-weight: bold; padding: 0 10px;">✕</button>
+            </div>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Click any topic to immediately jump to its study guide.</p>
+            
+            <div id="index-list-container" style="overflow-y: auto; flex-grow: 1; padding-right: 10px;">
+                <!-- Grouped topics will be dynamically injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         const SUPABASE_URL = "https://rvdxsjzkyymitrtigllu.supabase.co";
         const SUPABASE_KEY = "sb_publishable_kGEGz5RPCG73sWhF4HZiig_gBnqzE9d";
@@ -896,18 +967,18 @@
             await initializeDatabaseConnection();
         });
 
-       async function initializeDatabaseConnection() {
+        async function initializeDatabaseConnection() {
             const indicator = document.getElementById('db-loading-indicator');
             const submitBtn = document.getElementById('login-submit-btn');
 
             try {
-                // 1. Fetch Topics (assuming you have less than 1,000 topics)
+                // Fetch Topics 
                 const { data: topicsData } = await _supabase.from('topics').select('*');
                 state.topics = topicsData || [];
 
                 indicator.innerText = "Downloading question bank... (This may take a moment)";
                 
-                // 2. NEW PAGINATION LOGIC TO BYPASS THE 1,000 ROW LIMIT
+                // Pagination Logic to bypass the 1,000 row limit
                 let allQuestions = [];
                 let from = 0;
                 const step = 1000;
@@ -923,23 +994,20 @@
 
                     if (data && data.length > 0) {
                         allQuestions = allQuestions.concat(data);
-                        from += step; // Move the cursor forward by 1,000
+                        from += step; 
                     }
 
-                    // If we receive fewer than 1,000 rows, we have reached the end of the database
                     if (!data || data.length < step) {
                         keepFetching = false;
                     }
                 }
                 
-                state.questions = allQuestions; // Save all 9,500+ questions to the state
-                // -----------------------------------------------------------
+                state.questions = allQuestions; 
 
                 if (state.topics.length === 0) {
                     indicator.innerText = `Connected. Loaded 0 topics and ${state.questions.length} questions.`;
                     indicator.style.color = "#B88E56";
                 } else {
-                    // Updating the indicator so you can visually verify it loaded all 9,500+
                     indicator.innerText = `✓ Database ready. Loaded ${state.topics.length} topics and ${state.questions.length} questions.`;
                     indicator.style.color = "#3F5E4D";
                 }
@@ -1090,6 +1158,20 @@
             displayTopicCard();
         }
 
+        // NEW: Shuffle Topic Function
+        function loadRandomTopic() {
+            if (state.topics.length <= 1) return; // Prevent endless loop if only 1 topic exists
+            
+            let randomIndex = state.currentTopicIndex;
+            // Loop ensures it doesn't shuffle to the exact same topic you are already looking at
+            while (randomIndex === state.currentTopicIndex) {
+                randomIndex = Math.floor(Math.random() * state.topics.length);
+            }
+            
+            state.currentTopicIndex = randomIndex;
+            displayTopicCard();
+        }
+
         function handleSearch(event) {
             const query = event.target.value.toLowerCase().trim();
             const resultsBox = document.getElementById('search-results-box');
@@ -1131,6 +1213,60 @@
                 document.getElementById('search-results-box').style.display = 'none';
             }
         });
+
+        /* =========================================
+           NEW: TOPIC INDEX MODAL LOGIC
+           ========================================= */
+        function openTopicIndex() {
+            const container = document.getElementById('index-list-container');
+            container.innerHTML = '';
+
+            if (state.topics.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted)">No topics available in database.</p>';
+                document.getElementById('topic-index-modal').style.display = 'flex';
+                return;
+            }
+
+            // Group the topics by subject
+            const grouped = {};
+            state.topics.forEach((topic, originalIndex) => {
+                const subject = topic.subject || "UNASSIGNED";
+                if (!grouped[subject]) grouped[subject] = [];
+                // Save original array index so we can jump straight to it
+                grouped[subject].push({ ...topic, originalIndex }); 
+            });
+
+            // Sort subjects alphabetically
+            const subjects = Object.keys(grouped).sort();
+
+            subjects.forEach(subject => {
+                const header = document.createElement('div');
+                header.className = 'index-subject-header';
+                header.innerText = subject;
+                container.appendChild(header);
+
+                // Sort topics alphabetically within each subject group
+                grouped[subject].sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+
+                grouped[subject].forEach(topic => {
+                    const item = document.createElement('div');
+                    item.className = 'index-topic-item';
+                    item.innerText = `${topic.title} [ID: ${topic.id}]`;
+                    item.onclick = () => {
+                        state.currentTopicIndex = topic.originalIndex;
+                        displayTopicCard();
+                        closeTopicIndexModal();
+                    };
+                    container.appendChild(item);
+                });
+            });
+
+            document.getElementById('topic-index-modal').style.display = 'flex';
+        }
+
+        function closeTopicIndexModal() {
+            document.getElementById('topic-index-modal').style.display = 'none';
+        }
 
         function readLiteratureOfCurrentTopic() {
             const currentTopic = state.topics[state.currentTopicIndex];
@@ -1227,13 +1363,19 @@
            ========================================= */
         function startTopicWiseQuiz(topicId) {
             state.activeQuizType = "topic";
+            
+            // STRICT MATCHING using String() and .trim() to prevent datatype bugs
             state.quizQuestions = state.questions.filter(q => 
-    q.topic_id && String(q.topic_id).trim() === String(topicId).trim()
-);
+                q.topic_id && String(q.topic_id).trim() === String(topicId).trim()
+            );
+            
             state.currentQuestionIndex = 0;
             state.userAnswers = {};
 
-            if (state.quizQuestions.length === 0) { alert("No practice questions available for this topic."); return; }
+            if (state.quizQuestions.length === 0) { 
+                alert("No practice questions available for this topic."); 
+                return; 
+            }
 
             document.getElementById('quiz-back-button').onclick = () => showScreen('screen-reader');
             document.getElementById('timer-box').style.display = 'none';
@@ -1270,7 +1412,7 @@
                 favBtn.innerText = nowFav ? '★ Saved' : '⭐ Save Question';
             };
 
-            // Progress Update
+            // Progress Update & Visual Question ID
             const progressIndicator = document.getElementById('quiz-progress');
             let progressText = "";
             
