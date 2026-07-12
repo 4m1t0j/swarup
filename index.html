@@ -1195,7 +1195,7 @@
            ========================================= */
         function startTopicWiseQuiz(topicId) {
             state.activeQuizType = "topic";
-            state.quizQuestions = state.questions.filter(q => q.topic_id === topicId);
+            state.quizQuestions = state.questions.filter(q => String(q.topic_id) === String(topicId));
             state.currentQuestionIndex = 0;
             state.userAnswers = {};
 
