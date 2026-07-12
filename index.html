@@ -896,26 +896,58 @@
             await initializeDatabaseConnection();
         });
 
-        async function initializeDatabaseConnection() {
+       async function initializeDatabaseConnection() {
             const indicator = document.getElementById('db-loading-indicator');
             const submitBtn = document.getElementById('login-submit-btn');
 
             try {
+                // 1. Fetch Topics (assuming you have less than 1,000 topics)
                 const { data: topicsData } = await _supabase.from('topics').select('*');
                 state.topics = topicsData || [];
 
-                const { data: questionsData } = await _supabase.from('questions').select('*');
-                state.questions = questionsData || [];
+                indicator.innerText = "Downloading question bank... (This may take a moment)";
+                
+                // 2. NEW PAGINATION LOGIC TO BYPASS THE 1,000 ROW LIMIT
+                let allQuestions = [];
+                let from = 0;
+                const step = 1000;
+                let keepFetching = true;
+
+                while (keepFetching) {
+                    const { data, error } = await _supabase
+                        .from('questions')
+                        .select('*')
+                        .range(from, from + step - 1);
+
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        allQuestions = allQuestions.concat(data);
+                        from += step; // Move the cursor forward by 1,000
+                    }
+
+                    // If we receive fewer than 1,000 rows, we have reached the end of the database
+                    if (!data || data.length < step) {
+                        keepFetching = false;
+                    }
+                }
+                
+                state.questions = allQuestions; // Save all 9,500+ questions to the state
+                // -----------------------------------------------------------
 
                 if (state.topics.length === 0) {
-                    indicator.innerText = "Connected to Supabase. (Tables are empty)";
+                    indicator.innerText = `Connected. Loaded 0 topics and ${state.questions.length} questions.`;
                     indicator.style.color = "#B88E56";
                 } else {
-                    indicator.innerText = "✓ Database loaded successfully.";
+                    // Updating the indicator so you can visually verify it loaded all 9,500+
+                    indicator.innerText = `✓ Database ready. Loaded ${state.topics.length} topics and ${state.questions.length} questions.`;
                     indicator.style.color = "#3F5E4D";
                 }
+                
                 submitBtn.removeAttribute('disabled');
+
             } catch (error) {
+                console.error("Database connection error:", error);
                 indicator.innerText = "⚠️ Failed to load database tables.";
                 indicator.style.color = "#C5221F";
             }
